@@ -1,6 +1,9 @@
 from os import path
 import os
 import speech_recognition
+import torch
+model, example_texts, languages, punct, apply_te = torch.hub.load(repo_or_dir='snakers4/silero-models',
+                                                                  model='silero_te')
 
 
 def converter_ogg_to_wav(audio_filename):
@@ -22,12 +25,13 @@ def converter_audio(audio_filename_ogg):
 def text_recognizer(audio_filename_wav):
     sample_audio = speech_recognition.AudioFile(audio_filename_wav)
     r = speech_recognition.Recognizer()
-
     with sample_audio as source:
         audio = r.record(source)
-
     try:
         text = r.recognize_google(audio, language='ru-RU')
+        print(text)
+        text = apply_te(text.lower(), lan='ru')
+        print(text)
     except speech_recognition.UnknownValueError:
         text = "Извините, не удалось разобрать текст"
     except speech_recognition.RequestError as e:
